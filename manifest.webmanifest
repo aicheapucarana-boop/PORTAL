@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Portal do Membro – AIChE Apucarana",
-  "short_name": "AIChE",
+  "name": "Portal AIChE",
+  "short_name": "Portal AIChE",
   "description": "Notícias, tarefas, Jeopardy e horários do capítulo.",
   "start_url": "./",
   "scope": "./",

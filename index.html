@@ -2,15 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec>
+<https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec>
 <meta name="portal" content="https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec">
-<title>AIChE Apucarana</title>
+<title>Portal AIChE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B3D6B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AIChE">
+<meta name="apple-mobile-web-app-title" content="Portal AIChE">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -37,6 +37,11 @@ https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4i
   var K='aiche_app_acesso',q=new URLSearchParams(location.search),a=q.get('acesso');
   try{if(a&&/^M\d+\.[\w-]{16,}$/.test(a))localStorage.setItem(K,a);else a=localStorage.getItem(K);}catch(e){}
   if(q.get('sair')==='1'){try{localStorage.removeItem(K);}catch(e){}a=null;}
+  // deixa a página instalável como app (ícone próprio na tela inicial)
+  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js');}catch(e){}}
+  // o portal só entra depois que esta página termina de carregar: o portal do Google nunca para de carregar,
+  // e enquanto a página não termina o Chrome não oferece "Instalar app"
+  var montar=function(){
   var f=document.createElement('iframe');
   f.title='Portal do Membro';f.allow='clipboard-write; fullscreen';
   f.src=PORTAL+(a?(PORTAL.indexOf('?')>=0?'&':'?')+'acesso='+encodeURIComponent(a):'');
@@ -44,8 +49,8 @@ https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4i
   f.addEventListener('load',function(){setTimeout(ok,600);});
   setTimeout(function(){if(!abre.classList.contains('fora'))abre.innerHTML='<img src="icon-192.png" alt=""><div>Está demorando mais que o normal.<br><a href="'+f.src+'">Abrir o portal direto</a></div>';},15000);
   document.body.appendChild(f);
-  // deixa a página instalável como app (ícone próprio na tela inicial)
-  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js');}catch(e){}}
+  };
+  if(document.readyState==='complete')setTimeout(montar,50);else window.addEventListener('load',function(){setTimeout(montar,50);});
   // o portal avisa quando a pessoa sai: o app esquece o acesso guardado
   window.addEventListener('message',function(e){if(e.data&&e.data.aiche==='sair'){try{localStorage.removeItem(K);}catch(x){}}});
 })();
