@@ -32,6 +32,9 @@
   @keyframes vai{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
   a{color:#9FE3D6}
   [hidden]{display:none!important}
+  .npedido{position:fixed;inset:0;z-index:10;background:rgba(6,33,63,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+  .npc{width:100%;max-width:420px;background:#0B3D6B;border-radius:22px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .npc img{width:64px;height:64px;border-radius:16px;background:#fff;padding:6px;box-sizing:border-box}.npc b{font-size:19px}.npc p{margin:0 0 6px}
 </style>
 </head>
 <body>
@@ -55,7 +58,51 @@
   try{if(a&&/^M\d+\.[\w-]{16,}$/.test(a))localStorage.setItem(K,a);else a=localStorage.getItem(K);}catch(e){}
   if(q.get('sair')==='1'){try{localStorage.removeItem(K);}catch(e){}a=null;}
   if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js');}catch(e){}}
-  window.addEventListener('message',function(e){if(e.data&&e.data.aiche==='sair'){try{localStorage.removeItem(K);}catch(x){}}});
+  // ===== conversa com o portal: sair, notificações e destino de uma notificação tocada =====
+  var alvo=null,irPend=q.get('ir');
+  function responder(m){try{if(alvo)alvo.postMessage(m,'*');}catch(e){}}
+  function suporta(){return 'Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window;}
+  function permissao(){return suporta()?Notification.permission:'indisponivel';}
+  function carregaFirebase(cb){
+    if(window.firebase&&firebase.messaging){cb();return;}
+    var u='https://www.gstatic.com/firebasejs/10.12.2/',s1=document.createElement('script');s1.src=u+'firebase-app-compat.js';
+    s1.onload=function(){var s2=document.createElement('script');s2.src=u+'firebase-messaging-compat.js';s2.onload=cb;
+      s2.onerror=function(){responder({aiche:'push-erro',msg:'sem conexão com o Firebase'});};document.head.appendChild(s2);};
+    s1.onerror=function(){responder({aiche:'push-erro',msg:'sem conexão com o Firebase'});};document.head.appendChild(s1);
+  }
+  var ouvindo=false;
+  function obterToken(d,novo){carregaFirebase(function(){try{
+    if(!firebase.apps.length)firebase.initializeApp(d.cfg);
+    var msg=firebase.messaging();
+    if(!ouvindo){ouvindo=true;
+      // com o app aberto, o aviso também aparece
+      msg.onMessage(function(p){var x=(p&&p.data)||{};navigator.serviceWorker.ready.then(function(reg){
+        reg.showNotification(x.titulo||'Portal AIChE',{body:x.corpo||'',icon:'icon-192.png',badge:'icon-192.png',data:{url:x.url,ir:x.ir},tag:x.ir||undefined});});});}
+    navigator.serviceWorker.ready.then(function(reg){return msg.getToken({vapidKey:d.vapid,serviceWorkerRegistration:reg});})
+      .then(function(t){if(t)responder({aiche:'push-token',token:t,novo:novo});else responder({aiche:'push-erro',msg:'o aparelho não gerou o endereço de aviso'});})
+      .catch(function(er){responder({aiche:'push-erro',msg:er.message});});
+  }catch(er){responder({aiche:'push-erro',msg:er.message});}});}
+  function pedir(d){
+    if(!suporta()){responder({aiche:'push-negado',perm:'indisponivel'});return;}
+    if(Notification.permission==='granted'){obterToken(d,true);return;}
+    // o pedido de permissão precisa de um toque nesta página: painel do próprio app
+    var fundo=document.createElement('div');fundo.className='npedido';
+    fundo.innerHTML='<div class="npc"><img src="icon-192.png" alt=""><b>Ativar notificações?</b><p>O Portal AIChE vai avisar sobre tarefas, pedidos, prazos e eventos.</p></div>';
+    var ok=document.createElement('button');ok.className='bt ouro';ok.type='button';ok.textContent='Permitir notificações';
+    var nao=document.createElement('button');nao.className='bt claro';nao.type='button';nao.textContent='Agora não';
+    var caixa=fundo.firstChild;caixa.appendChild(ok);caixa.appendChild(nao);document.body.appendChild(fundo);
+    nao.onclick=function(){fundo.remove();responder({aiche:'push-negado',perm:'default'});};
+    ok.onclick=function(){Promise.resolve(Notification.requestPermission()).then(function(p){fundo.remove();
+      if(p==='granted')obterToken(d,true);else responder({aiche:'push-negado',perm:p});});};
+  }
+  window.addEventListener('message',function(e){var d=e.data;if(!d||!d.aiche)return;
+    if(d.aiche==='sair'){try{localStorage.removeItem(K);}catch(x){}return;}
+    if(d.aiche==='oi'){alvo=e.source;responder({aiche:'app',perm:permissao(),suporta:suporta()});if(irPend){responder({aiche:'ir',ir:irPend});irPend=null;}return;}
+    if(d.aiche==='push-pedir'){alvo=e.source;pedir(d);return;}
+    if(d.aiche==='push-renovar'){alvo=e.source;if(permissao()==='granted')obterToken(d,false);}
+  });
+  // tocou num aviso com o app já aberto: o service worker manda o destino para cá
+  if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',function(e){if(e.data&&e.data.aiche==='ir'&&e.data.ir)responder({aiche:'ir',ir:e.data.ir});});
 
   function abrirPortal(){
     inst.hidden=true;abre.hidden=false;
