@@ -97,6 +97,9 @@
   }
   window.addEventListener('message',function(e){var d=e.data;if(!d||!d.aiche)return;
     if(d.aiche==='sair'){try{localStorage.removeItem(K);}catch(x){}return;}
+    // link externo tocado dentro do portal: abre fora do app (formulário, Drive, site)
+    if(d.aiche==='abrir'&&/^https?:\/\//i.test(String(d.url||''))){var w=null;try{w=window.open(d.url,'_blank','noopener');}catch(x){}
+      if(!w){var l=document.createElement('a');l.href=d.url;l.target='_blank';l.rel='noopener';document.body.appendChild(l);l.click();l.remove();}return;}
     if(d.aiche==='oi'){alvo=e.source;responder({aiche:'app',perm:permissao(),suporta:suporta()});if(irPend){responder({aiche:'ir',ir:irPend});irPend=null;}return;}
     if(d.aiche==='push-pedir'){alvo=e.source;pedir(d);return;}
     if(d.aiche==='push-renovar'){alvo=e.source;if(permissao()==='granted')obterToken(d,false);}
