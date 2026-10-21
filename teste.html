@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teste do app AIChE</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:18px;background:#F3F6F9;color:#1A2430}
+h1{font-size:20px;color:#0B3D6B;margin:0 0 4px}p{color:#5B6B7B;font-size:14px;margin:0 0 14px}
+.l{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #DCE3EA;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px}
+.l b{flex:1}.ok{color:#0F5E52;font-weight:800}.er{color:#B3362F;font-weight:800}
+.l img{width:40px;height:40px;border-radius:9px;background:#EEF2F6;object-fit:contain}
+code{font-size:12px;word-break:break-all;color:#5B6B7B}
+</style></head><body>
+<h1>Teste do app</h1><p>Tire um print desta tela e mande. Endereço desta página:<br><code id="end"></code></p>
+<div id="r"></div>
+<script>
+document.getElementById('end').textContent=location.href;
+var r=document.getElementById('r');
+function linha(nome,ok,det,img){var d=document.createElement('div');d.className='l';
+  if(img){var i=document.createElement('img');i.src=img;d.appendChild(i);}
+  var b=document.createElement('b');b.textContent=nome;d.appendChild(b);
+  var s=document.createElement('span');s.className=ok?'ok':'er';s.textContent=ok?'OK':'FALHOU';d.appendChild(s);
+  if(det){var c=document.createElement('code');c.textContent=' '+det;d.appendChild(c);}r.appendChild(d);}
+function testa(url,nome,img){return fetch(url,{cache:'no-store'}).then(function(x){linha(nome+' ('+x.status+')',x.ok,x.ok?'':new URL(url,location.href).href,img&&x.ok?url:null);return x;})
+  .catch(function(e){linha(nome,false,e.message);});}
+(async function(){
+  linha('Endereço termina com /',/\/$/.test(location.pathname.replace(/teste\.html$/,'')),location.pathname);
+  var m=await testa('manifest.webmanifest','Manifesto');
+  try{var j=await (await fetch('manifest.webmanifest',{cache:'no-store'})).json();linha('Manifesto lido: '+j.short_name+' · '+j.display,true);}catch(e){linha('Manifesto com erro de formato',false,e.message);}
+  await testa('icon-192.png','Ícone 192','icon-192.png');
+  await testa('icon-512.png','Ícone 512','icon-512.png');
+  await testa('icon-maskable-512.png','Ícone maskable','icon-maskable-512.png');
+  await testa('apple-touch-icon.png','Ícone iPhone','apple-touch-icon.png');
+  await testa('sw.js','Arquivo sw.js');
+  if('serviceWorker' in navigator){try{var reg=await navigator.serviceWorker.register('sw.js');linha('Service worker registrado',!!reg,reg&&reg.scope);}catch(e){linha('Service worker',false,e.message);}}
+  else linha('Navegador sem suporte a service worker',false);
+  var html=await (await fetch('./',{cache:'no-store'})).text();
+  linha('index.html com o link do portal',!/COLE_AQUI/.test(html)&&/script\.google\.com/.test(html));
+  linha('index.html é a versão nova (com sw.js)',/serviceWorker/.test(html));
+  linha('Navegador: '+(/Brave/i.test(navigator.userAgent)||navigator.brave?'Brave':/Chrome/i.test(navigator.userAgent)?'Chrome':'outro'),true,navigator.userAgent.slice(0,80));
+})();
+</script></body></html>
