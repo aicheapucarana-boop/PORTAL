@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec>
+<meta name="portal" content="https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec">
+<title>AIChE Apucarana</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B3D6B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AIChE">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<style>
+  html,body{margin:0;height:100%;background:#0B3D6B;overflow:hidden}
+  iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#F3F6F9}
+  #abre{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0B3D6B;color:#fff;font:600 16px/1.4 Figtree,'Segoe UI',Arial,sans-serif;transition:opacity .35s;z-index:2;text-align:center;padding:24px}
+  #abre img{width:96px;height:96px;object-fit:contain;border-radius:22px;background:#fff;padding:10px;box-sizing:border-box}
+  #abre .pt{width:42px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);overflow:hidden;position:relative}
+  #abre .pt::after{content:"";position:absolute;inset:0;width:40%;background:#1F9E89;animation:vai 1.1s ease-in-out infinite}
+  @keyframes vai{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+  #abre.fora{opacity:0;pointer-events:none}
+  #abre a{color:#9FE3D6}
+</style>
+</head>
+<body>
+<div id="abre" role="status"><img src="icon-192.png" alt=""><div>Abrindo o portal…</div><div class="pt"></div></div>
+<script>
+(function(){
+  var PORTAL=document.querySelector('meta[name=portal]').content.trim(), abre=document.getElementById('abre');
+  if(!/^https:\/\/script\.google\.com\/.+\/exec/.test(PORTAL)){abre.innerHTML='<div>Falta colar o link do portal no arquivo index.html (linha "COLE AQUI").</div>';return;}
+  // o link pessoal (?acesso=...) fica guardado neste app: as próximas aberturas pela tela inicial já entram conectadas
+  var K='aiche_app_acesso',q=new URLSearchParams(location.search),a=q.get('acesso');
+  try{if(a&&/^M\d+\.[\w-]{16,}$/.test(a))localStorage.setItem(K,a);else a=localStorage.getItem(K);}catch(e){}
+  if(q.get('sair')==='1'){try{localStorage.removeItem(K);}catch(e){}a=null;}
+  var f=document.createElement('iframe');
+  f.title='Portal do Membro';f.allow='clipboard-write; fullscreen';
+  f.src=PORTAL+(a?(PORTAL.indexOf('?')>=0?'&':'?')+'acesso='+encodeURIComponent(a):'');
+  var ok=function(){abre.classList.add('fora');};
+  f.addEventListener('load',function(){setTimeout(ok,600);});
+  setTimeout(function(){if(!abre.classList.contains('fora'))abre.innerHTML='<img src="icon-192.png" alt=""><div>Está demorando mais que o normal.<br><a href="'+f.src+'">Abrir o portal direto</a></div>';},15000);
+  document.body.appendChild(f);
+  // o portal avisa quando a pessoa sai: o app esquece o acesso guardado
+  window.addEventListener('message',function(e){if(e.data&&e.data.aiche==='sair'){try{localStorage.removeItem(K);}catch(x){}}});
+})();
+</script>
+</body>
+</html>

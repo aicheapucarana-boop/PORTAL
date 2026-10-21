@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerar ícones do app</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px 18px;color:#1A2430;background:#F3F6F9}
+h1{color:#0B3D6B;font-size:24px}p{color:#5B6B7B}label{display:block;font-weight:700;margin:16px 0 6px}
+.prev{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0}.prev figure{margin:0;text-align:center;font-size:12px;color:#5B6B7B}
+.prev canvas{border:1px solid #DCE3EA;border-radius:22%;background:#fff;width:96px;height:96px}
+.prev canvas.m{border-radius:50%}
+button,a.b{display:inline-block;border:0;border-radius:10px;padding:12px 16px;font-weight:700;background:#0B3D6B;color:#fff;text-decoration:none;margin:6px 6px 0 0;cursor:pointer}
+input[type=range]{width:100%}.row{display:flex;gap:10px;align-items:center}
+</style></head><body>
+<h1>Gerar os ícones do app</h1>
+<p>Escolha a logo do AIChE (PNG, de preferência com fundo transparente). Ajuste o fundo e o tamanho, e baixe os 4 arquivos. Depois suba os 4 no GitHub, junto com os outros arquivos.</p>
+<label>Logo</label><input type="file" id="arq" accept="image/*">
+<label>Cor de fundo do ícone</label><div class="row"><input type="color" id="cor" value="#FFFFFF"> <button type="button" onclick="cor.value='#FFFFFF';des()">Branco</button><button type="button" onclick="cor.value='#0B3D6B';des()">Azul AIChE</button></div>
+<label>Tamanho da logo dentro do ícone</label><input type="range" id="tam" min="50" max="95" value="78">
+<div class="prev" id="prev"></div>
+<div id="bts"></div>
+<script>
+var img=null,ALVOS=[['icon-192.png',192,0],['icon-512.png',512,0],['icon-maskable-512.png',512,1],['apple-touch-icon.png',180,0]];
+function des(){if(!img)return;var prev=document.getElementById('prev'),bts=document.getElementById('bts');prev.innerHTML='';bts.innerHTML='';
+  ALVOS.forEach(function(a){var c=document.createElement('canvas');c.width=c.height=a[1];var x=c.getContext('2d');
+    x.fillStyle=cor.value;x.fillRect(0,0,a[1],a[1]);
+    var p=(a[2]?Math.min(+tam.value,66):+tam.value)/100,lado=a[1]*p,r=Math.min(lado/img.width,lado/img.height),w=img.width*r,h=img.height*r;
+    x.imageSmoothingQuality='high';x.drawImage(img,(a[1]-w)/2,(a[1]-h)/2,w,h);
+    if(a[2])c.className='m';
+    var f=document.createElement('figure');f.appendChild(c);f.appendChild(document.createElement('figcaption')).textContent=a[0];prev.appendChild(f);
+    var b=document.createElement('a');b.className='b';b.textContent='Baixar '+a[0];b.download=a[0];b.href=c.toDataURL('image/png');bts.appendChild(b);});}
+arq.onchange=function(){var f=arq.files[0];if(!f)return;var r=new FileReader();r.onload=function(){img=new Image();img.onload=des;img.src=r.result;};r.readAsDataURL(f);};
+cor.oninput=des;tam.oninput=des;
+</script></body></html>
