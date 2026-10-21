@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec>
+https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec>
 <meta name="portal" content="https://script.google.com/macros/s/AKfycbzUiqCKwssrdgCJE85d4tVMrRxPuHFKuPLDnlQ4iOLz6EFr8XVe6jpfSvNMsPcYbJogjg/exec">
 <title>AIChE Apucarana</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="AIChE">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
   html,body{margin:0;height:100%;background:#0B3D6B;overflow:hidden}
@@ -43,6 +44,8 @@
   f.addEventListener('load',function(){setTimeout(ok,600);});
   setTimeout(function(){if(!abre.classList.contains('fora'))abre.innerHTML='<img src="icon-192.png" alt=""><div>Está demorando mais que o normal.<br><a href="'+f.src+'">Abrir o portal direto</a></div>';},15000);
   document.body.appendChild(f);
+  // deixa a página instalável como app (ícone próprio na tela inicial)
+  if('serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js');}catch(e){}}
   // o portal avisa quando a pessoa sai: o app esquece o acesso guardado
   window.addEventListener('message',function(e){if(e.data&&e.data.aiche==='sair'){try{localStorage.removeItem(K);}catch(x){}}});
 })();
