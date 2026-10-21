@@ -63,10 +63,15 @@
     f.title='Portal AIChE';f.allow='clipboard-write; fullscreen';
     f.src=PORTAL+(a?(PORTAL.indexOf('?')>=0?'&':'?')+'acesso='+encodeURIComponent(a):'');
     f.addEventListener('load',function(){setTimeout(function(){abre.classList.add('fora');},600);});
-    setTimeout(function(){if(!abre.classList.contains('fora'))abre.innerHTML='<img class="logo" src="icon-192.png" alt=""><div>Está demorando mais que o normal.<br><a href="'+f.src+'">Abrir o portal direto</a></div>';},15000);
+    // sem link "abrir direto": um endereço script.google.com fora do app faz o Android abrir o app do Google Drive
+    setTimeout(function(){if(abre.classList.contains('fora'))return;
+      abre.innerHTML='<img class="logo" src="icon-192.png" alt=""><div>Está demorando mais que o normal.</div>';
+      var b=document.createElement('button');b.className='bt claro';b.type='button';b.textContent='Tentar de novo';
+      b.onclick=function(){abre.innerHTML='<img class="logo" src="icon-192.png" alt=""><div>Abrindo o portal…</div><div class="pt"></div>';f.src=f.src;};abre.appendChild(b);},15000);
     document.body.appendChild(f);
   }
-  var instalado=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true||document.referrer.indexOf('android-app://')===0;
+  // aberto pelo ícone da tela inicial (o app abre com ?app=1): vai direto para o portal, em qualquer navegador
+  var instalado=q.get('app')==='1'||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true||document.referrer.indexOf('android-app://')===0;
   if(instalado){abrirPortal();return;}
 
   // aberto no navegador: mostra a instalação

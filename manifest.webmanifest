@@ -3,7 +3,7 @@
   "name": "Portal AIChE",
   "short_name": "Portal AIChE",
   "description": "Notícias, tarefas, Jeopardy e horários do capítulo.",
-  "start_url": "./",
+  "start_url": "./?app=1",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
